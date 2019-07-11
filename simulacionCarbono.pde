@@ -97,7 +97,7 @@ class Atom{
         }
         acc.add(force);
       }else{
-        acc.sub(force);
+        acc.sub(force.mult(0.9));
       }
         
   }
@@ -124,7 +124,7 @@ class Atom{
       if(spin == 0){
         for(int i = 0; i<3; i++){
           if(this.bond[i] != null){
-            stroke(#FF0000);
+            stroke(#0f9d58);
           }
           line(pos.x, pos.y, attractorsRight[i].x, attractorsRight[i].y);
           
@@ -134,7 +134,7 @@ class Atom{
       else if(spin == 1){
         for(int i = 0; i<3; i++){
           if(this.bond[i] != null){
-            stroke(#FF0000);
+            stroke(#0f9d58);
           }
           line(pos.x, pos.y, attractorsLeft[i].x, attractorsLeft[i].y);
           
@@ -145,7 +145,7 @@ class Atom{
   }
 }
 
-Atom[] atoms = new Atom[58];
+Atom[] atoms = new Atom[108];
 
 void setup(){
   size(1000, 1000);
@@ -167,7 +167,6 @@ void draw(){
     }
     atoms[i].update();
     atoms[i].show();
-    atoms[i].updateLinked(atoms[i]);
   }
   
 }
