@@ -37,7 +37,7 @@ class Atom{
   }
   
   void update(){
-    //this.checkLimits();
+    this.checkLimits();
     vel.add(acc);
     vel.limit(1);
     pos.add(vel);
@@ -97,23 +97,23 @@ class Atom{
         }
         acc.add(force);
       }else{
-        acc.sub(force.mult(0.9));
+        acc.sub(force.mult(0.7));
       }
         
   }
   
   void checkLimits(){
     if(pos.x > width-20){
-      pos.x = 20;
+      vel.x = -vel.x;
     }
     if(pos.y > height-20){
-      pos.y = 20;
+      vel.y = -vel.y;
     }
     if(pos.x < 20){
-      pos.x = width - 20;
+      vel.x = -vel.x;
     }
     if(pos.y < 20){
-      pos.y = height - 20;
+      vel.y = -vel.y;
     }
   }
   
@@ -145,7 +145,7 @@ class Atom{
   }
 }
 
-Atom[] atoms = new Atom[108];
+Atom[] atoms = new Atom[10];
 
 void setup(){
   size(1000, 1000);
