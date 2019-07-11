@@ -37,7 +37,7 @@ class Atom{
   }
   
   void update(){
-    this.checkLimits();
+    //this.checkLimits();
     vel.add(acc);
     vel.limit(1);
     pos.add(vel);
@@ -60,11 +60,15 @@ class Atom{
   }
   
   void interact(Atom atom){
-    
+      PVector force = PVector.sub(atom.pos, this.pos);
+      float d = force.mag();
+      d = constrain(d,1,25);
+      float attraction = G/(d*d);
+      force.setMag(attraction);
       if(atom.spin != this.spin){
         for(int i=0;i<3;i++){
           if(atom.spin == 1 && !atom.hasBond[i] && !this.hasBond[i]){
-            if(PVector.sub(atom.attractorsLeft[i],this.pos).mag() < 20){
+            if(PVector.sub(atom.attractorsLeft[i],this.pos).mag() < 40){
               this.pos = atom.attractorsLeft[i];
               this.still = true;
               atom.still = true;
@@ -77,7 +81,7 @@ class Atom{
               break;
             }
           }else if(atom.spin == 0 && !atom.hasBond[i] && !this.hasBond[i]){
-            if(PVector.sub(atom.attractorsRight[i],this.pos).mag() < 20){
+            if(PVector.sub(atom.attractorsRight[i],this.pos).mag() < 40){
               this.pos = atom.attractorsRight[i];
               this.still = true;
               atom.still = true;
@@ -91,17 +95,11 @@ class Atom{
             }
           }
         }
-      }else{
-        
-      }
-      if(!this.still){
-        PVector force = PVector.sub(atom.pos, this.pos);
-        float d = force.mag();
-        d = constrain(d,1,25);
-        float attraction = G/(d*d);
-        force.setMag(attraction);
         acc.add(force);
+      }else{
+        acc.sub(force);
       }
+        
   }
   
   void checkLimits(){
@@ -147,7 +145,7 @@ class Atom{
   }
 }
 
-Atom[] atoms = new Atom[38];
+Atom[] atoms = new Atom[58];
 
 void setup(){
   size(1000, 1000);
