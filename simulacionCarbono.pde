@@ -53,7 +53,7 @@ class Atom{
           this.bond[i].vel = atom.vel;
           this.bond[i].acc = atom.acc;
           this.bond[i].pos = atom.spin==0?atom.attractorsRight[i]:atom.attractorsLeft[i];
-          this.bond[i].updateLinked(this.bond[i]);
+          //this.bond[i].updateLinked(this.bond[i]);
         }
       }
     }
@@ -147,7 +147,7 @@ class Atom{
   }
 }
 
-Atom[] atoms = new Atom[18];
+Atom[] atoms = new Atom[38];
 
 void setup(){
   size(1000, 1000);
@@ -169,6 +169,7 @@ void draw(){
     }
     atoms[i].update();
     atoms[i].show();
+    atoms[i].updateLinked(atoms[i]);
   }
   
 }
