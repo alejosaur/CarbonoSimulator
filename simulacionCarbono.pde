@@ -1,5 +1,5 @@
 class Atom{
-  Atom bond;
+  Atom[] bond = new Atom[3];
   color rang;
   int id, spin = -1, bondIdx;
   boolean still = false;
@@ -12,16 +12,18 @@ class Atom{
   PVector[] attractorsLeft = new PVector[3];
   PVector[] attractorsRight = new PVector[3];
   
-  Atom(int id, PVector pos, color rang){
+  Atom(int id, PVector pos, color rang, int spin){
     this.id = id;
     this.pos = pos;
     this.rang = rang;
+    this.spin = spin;
     
     vel = new PVector();
     acc = new PVector();
     
     for(int i = 0; i < 3; i++){
       hasBond[i] = false;  
+      bond[i] = null;
     }
   }
   
@@ -36,70 +38,124 @@ class Atom{
   
   void update(){
     this.checkLimits();
-    if(bond==null){
-      vel.add(acc);
-      vel.limit(1);
-      pos.add(vel);
-      acc.mult(0);
-    }else{
-      
-    }
+    vel.add(acc);
+    vel.limit(1);
+    pos.add(vel);
+    acc.mult(0);
     this.updateAttractors();
+    this.updateLinked(this);
+  }
+  
+  void updateLinked(Atom atom){
+    for (int i=0; i<3; i++){
+      if(this.bond[i] != null){
+        if(!(this.bond[i].vel == atom.vel && this.bond[i].acc == atom.acc) || !(this.bond[i].pos == atom.attractorsRight[i] || this.bond[i].pos == atom.attractorsLeft[i])){
+          this.bond[i].vel = atom.vel;
+          this.bond[i].acc = atom.acc;
+          this.bond[i].pos = atom.spin==0?atom.attractorsRight[i]:atom.attractorsLeft[i];
+          this.bond[i].updateLinked(this.bond[i]);
+        }
+      }
+    }
   }
   
   void interact(Atom atom){
-    for(int i=0;i<3;i++){
-      
-    }
-    PVector force = PVector.sub(atom.pos, this.pos);
-    float d = force.mag();
-    d = constrain(d,1,25);
-    float attraction = G/(d*d);
-    force.setMag(attraction);
-    acc.add(force);
+    
+      if(atom.spin != this.spin){
+        for(int i=0;i<3;i++){
+          if(atom.spin == 1 && !atom.hasBond[i] && !this.hasBond[i]){
+            if(PVector.sub(atom.attractorsLeft[i],this.pos).mag() < 20){
+              this.pos = atom.attractorsLeft[i];
+              this.still = true;
+              atom.still = true;
+              this.vel = atom.vel;
+              this.acc = atom.acc;
+              atom.hasBond[i] = true;
+              this.bond[i] = atom;
+              atom.bond[i] = this;
+              this.updateLinked(this);
+              break;
+            }
+          }else if(atom.spin == 0 && !atom.hasBond[i] && !this.hasBond[i]){
+            if(PVector.sub(atom.attractorsRight[i],this.pos).mag() < 20){
+              this.pos = atom.attractorsRight[i];
+              this.still = true;
+              atom.still = true;
+              this.vel = atom.vel;
+              this.acc = atom.acc;
+              atom.hasBond[i] = true;
+              this.bond[i] = atom;
+              atom.bond[i] = this;
+              this.updateLinked(this);
+              break;
+            }
+          }
+        }
+      }else{
+        
+      }
+      if(!this.still){
+        PVector force = PVector.sub(atom.pos, this.pos);
+        float d = force.mag();
+        d = constrain(d,1,25);
+        float attraction = G/(d*d);
+        force.setMag(attraction);
+        acc.add(force);
+      }
   }
   
   void checkLimits(){
-    if(pos.x > width){
-      pos.x = 0;
+    if(pos.x > width-20){
+      pos.x = 20;
     }
-    if(pos.y > height){
-      pos.y = 0;
+    if(pos.y > height-20){
+      pos.y = 20;
     }
-    if(pos.x < 0){
-      pos.x = width - 1;
+    if(pos.x < 20){
+      pos.x = width - 20;
     }
-    if(pos.y < 0){
-      pos.y = height - 1;
+    if(pos.y < 20){
+      pos.y = height - 20;
     }
   }
   
   void show(){
     fill(rang);
     ellipse(pos.x, pos.y, 8, 8);
-    if(spin != -1){
+    if(spin != -1 && still){
       if(spin == 0){
-        line(pos.x, pos.y, attractorsRight[0].x, attractorsRight[0].y);
-        line(pos.x, pos.y, attractorsRight[1].x, attractorsRight[1].y);
-        line(pos.x, pos.y, attractorsRight[2].x, attractorsRight[2].y);
+        for(int i = 0; i<3; i++){
+          if(this.bond[i] != null){
+            stroke(#FF0000);
+          }
+          line(pos.x, pos.y, attractorsRight[i].x, attractorsRight[i].y);
+          
+          stroke(#000000);
+        }
       }
       else if(spin == 1){
-        line(pos.x, pos.y, attractorsLeft[0].x, attractorsLeft[0].y);
-        line(pos.x, pos.y, attractorsLeft[1].x, attractorsLeft[1].y);
-        line(pos.x, pos.y, attractorsLeft[2].x, attractorsLeft[2].y);
+        for(int i = 0; i<3; i++){
+          if(this.bond[i] != null){
+            stroke(#FF0000);
+          }
+          line(pos.x, pos.y, attractorsLeft[i].x, attractorsLeft[i].y);
+          
+          stroke(#000000);
+        }
       }
     }
   }
 }
 
-Atom[] atoms = new Atom[40];
+Atom[] atoms = new Atom[18];
 
 void setup(){
   size(1000, 1000);
   
   for(int i=0; i<atoms.length;i++){
     PVector loc = new PVector(random(0,width), random(0,height));
-    atoms[i] = new Atom(i, loc, i);
+    atoms[i] = new Atom(i, loc, i, i%2);
+    atoms[i].updateAttractors();
   }
 }
 
