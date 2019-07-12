@@ -1,6 +1,5 @@
 class Atom{
   Atom[] bond = new Atom[3];
-  color rang;
   int id, spin = -1, bondIdx;
   boolean still = false;
   PVector pos,vel,acc;
@@ -12,10 +11,9 @@ class Atom{
   PVector[] attractorsLeft = new PVector[3];
   PVector[] attractorsRight = new PVector[3];
   
-  Atom(int id, PVector pos, color rang, int spin){
+  Atom(int id, PVector pos, int spin){
     this.id = id;
     this.pos = pos;
-    this.rang = rang;
     this.spin = spin;
     
     vel = new PVector();
@@ -118,9 +116,9 @@ class Atom{
   }
   
   void show(){
-    fill(rang);
+    fill(#000000);
     ellipse(pos.x, pos.y, 8, 8);
-    if(spin != -1 && still){
+    if(still){
       if(spin == 0){
         for(int i = 0; i<3; i++){
           if(this.bond[i] != null){
@@ -145,14 +143,14 @@ class Atom{
   }
 }
 
-Atom[] atoms = new Atom[10];
+Atom[] atoms = new Atom[15];
 
 void setup(){
   size(1000, 1000);
   
   for(int i=0; i<atoms.length;i++){
     PVector loc = new PVector(random(0,width), random(0,height));
-    atoms[i] = new Atom(i, loc, i, i%2);
+    atoms[i] = new Atom(i, loc, i%2);
     atoms[i].updateAttractors();
   }
 }
